@@ -1,9 +1,12 @@
-import _judger
+#import _judger
 import os
 
 
 class Judger:
-    def __init__(self, workdir, dataname):
+    def __init__(self):
+        pass
+
+    def init(self, workdir, dataname):
         self.workdir = workdir
         self.dataname = dataname
 
@@ -40,7 +43,7 @@ class Judger:
                   running_result['memory'], running_result['result']]
         if running_result['result'] != 0:
             return result
-        with open(self.workdir + "sample") as ansf:
+        with open(self.workdir + "standard") as ansf:
             ans = ansf.read().strip()
             with open(self.workdir + self.dataname + ".out") as usrf:
                 usrans = usrf.read().strip()
