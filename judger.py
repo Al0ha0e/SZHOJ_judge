@@ -39,8 +39,8 @@ class Judger:
                                      uid=0,
                                      gid=0)
         # print(running_result.result)
-        result = [running_result['real_time'],
-                  running_result['memory'], running_result['result']]
+        result = {"qid": 0, "time": running_result['real_time'],
+                  "memory": running_result['memory'], "state": running_result['result']}
         if running_result['result'] != 0:
             return result
         with open(self.workdir + "standard") as ansf:
@@ -48,7 +48,7 @@ class Judger:
             with open(self.workdir + self.dataname + ".out") as usrf:
                 usrans = usrf.read().strip()
                 if usrans != ans:
-                    result[0] = -1
+                    result["state"] = -1  # WA
         return result
 
         # while ans[-1] == '\t' or ans[-1] == '\n' or ans

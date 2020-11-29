@@ -17,13 +17,14 @@ BUFSIZE = 8*1024*1024
 class JudgeServer:
     def __init__(self, selfIp, masterIp):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server.bind(selfIp)
         self.masterIp = masterIp
         self.judger = judger.Judger()
 
     def connect(self):
-        pass
+        initPack = {"qid": -1, "time": 0, "memory": 0, "state": 0}
+        initJSON = json.dumps(initPack)
+        self.server.sendto(initJSON.encode("utf-8"), self.masterIp)
 
     def run(self):
         while True:
@@ -33,14 +34,15 @@ class JudgeServer:
             print(req)
             self.setupEnv(str(req['qid']), req['data'],
                           req['ucode'])
-            result = [0, 0, 0]
+            result = {"qid": req["qid"], "time": 0, "memory": 0, "state": 0}
             if self.judger.compile("user") == -1:
-                result[3] = -2  # compile failed
+                result["state"] = -2  # compile failed
             else:
                 result = self.judger.judge(
                     req["timeLimit"], req["memoryLimit"])
+                result["qid"] = req["qid"]
             res = json.dumps(result)
-            self.client.sendto(res.endcode("utf-8"), self.masterIp)
+            self.server.sendto(res.endcode("utf-8"), self.masterIp)
             self.cleanEnv(str(req['qid']))
 
     def setupEnv(self, qid, data, ucode):
