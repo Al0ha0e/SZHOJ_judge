@@ -1,16 +1,21 @@
 import socket
 
+import json
+
 BUFSIZE = 1024
 
 
-class JudgeServer:
-    def __init__(self, ip):
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server.bind(ip)
+# class JudgeServer:
+#     def __init__(self, ip):
+#         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#         self.server.bind(ip)
 
-    def connect(self):
-        pass
+#     def connect(self):
+#         pass
 
-    def run(self):
-        while True:
-            data, client_addr = self.server.recvfrom(BUFSIZE)
+#     def run(self):
+#         while True:
+#             data, client_addr = self.server.recvfrom(BUFSIZE)
+
+
+# json.loads()

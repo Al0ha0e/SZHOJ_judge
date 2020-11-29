@@ -1,0 +1,6 @@
+FATAL [2020-11-29 19:12:35] [/mnt/d/OJ/Judger/src/child.c:87]Error: System errno: No such file or directory; Internal errno: DUP2_FAILED
+FATAL [2020-11-29 19:13:26] [/mnt/d/OJ/Judger/src/child.c:87]Error: System errno: No such file or directory; Internal errno: DUP2_FAILED
+FATAL [2020-11-29 19:13:54] [/mnt/d/OJ/Judger/src/child.c:87]Error: System errno: No such file or directory; Internal errno: DUP2_FAILED
+FATAL [2020-11-29 19:14:15] [/mnt/d/OJ/Judger/src/child.c:87]Error: System errno: No such file or directory; Internal errno: DUP2_FAILED
+FATAL [2020-11-29 19:15:53] [/mnt/d/OJ/Judger/src/child.c:143]Error: System errno: Invalid argument; Internal errno: LOAD_SECCOMP_FAILED
+FATAL [2020-11-29 19:19:57] [/mnt/d/OJ/Judger/src/child.c:143]Error: System errno: Invalid argument; Internal errno: LOAD_SECCOMP_FAILED

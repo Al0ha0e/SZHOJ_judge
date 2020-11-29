@@ -1,0 +1,1 @@
+FATAL [2020-11-29 19:11:14] [/mnt/d/OJ/Judger/src/child.c:87]Error: System errno: No such file or directory; Internal errno: DUP2_FAILED
