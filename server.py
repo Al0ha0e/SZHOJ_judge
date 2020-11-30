@@ -26,7 +26,7 @@ class HeartBeatSender(threading.Thread):
     def run(self):
         while True:
             time.sleep(1)
-            self.sock.sendto(self.masterIp, self.hbPack)
+            self.sock.sendto(self.hbPack,self.masterIp)
 
 
 class MasterListener(threading.Thread):
@@ -47,22 +47,24 @@ class MasterListener(threading.Thread):
             result = {"qid": req["qid"], "time": 0, "memory": 0, "state": 0}
             if self.judger.compile("user") == -1:
                 result["state"] = -2  # compile failed
+                print("COMPILE FAIL")
+                continue
             else:
                 result = self.judger.judge(
                     req["timeLimit"], req["memoryLimit"])
                 result["qid"] = req["qid"]
             res = json.dumps(result)
-            self.sock.sendto(res.endcode("utf-8"), self.masterIp)
+            self.sock.sendto(res.encode("utf-8"), self.masterIp)
             self.cleanEnv(str(req['qid']))
 
-    def setupEnv(self, qid, data, ucode):
+    def setupEnv(self, qid, datain,dataout, ucode):
         if os.path.exists(qid):
             shutil.rmtree(qid)
         os.makedirs(qid)
         codef = open(qid + "/standard", "w")
         codef.write(data)
         codef.close()
-        ucodef = open(qid + "/user", "w")
+        ucodef = open(qid + "/user.cpp", "w")
         ucodef.write(ucode)
         ucodef.close()
         self.judger.init(qid+"/", "data")
