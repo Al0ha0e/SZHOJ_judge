@@ -26,7 +26,7 @@ class HeartBeatSender(threading.Thread):
     def run(self):
         while True:
             time.sleep(1)
-            self.sock.sendto(self.hbPack,self.masterIp)
+            self.sock.sendto(self.hbPack, self.masterIp)
 
 
 class MasterListener(threading.Thread):
@@ -42,8 +42,8 @@ class MasterListener(threading.Thread):
             req = req.decode()
             req = json.loads(req)
             print(req)
-            self.setupEnv(str(req['qid']), req['data'],
-                          req['ucode'])
+            self.setupEnv(str(req['qid']), req['datain'],
+                          req['dataout'], req['ucode'])
             result = {"qid": req["qid"], "time": 0, "memory": 0, "state": 0}
             if self.judger.compile("user") == -1:
                 result["state"] = -2  # compile failed
@@ -57,12 +57,15 @@ class MasterListener(threading.Thread):
             self.sock.sendto(res.encode("utf-8"), self.masterIp)
             self.cleanEnv(str(req['qid']))
 
-    def setupEnv(self, qid, datain,dataout, ucode):
+    def setupEnv(self, qid, datain, dataout, ucode):
         if os.path.exists(qid):
             shutil.rmtree(qid)
         os.makedirs(qid)
+        codef = open(qid + "/data.in", "w")
+        codef.write(datain)
+        codef.close()
         codef = open(qid + "/standard", "w")
-        codef.write(data)
+        codef.write(dataout)
         codef.close()
         ucodef = open(qid + "/user.cpp", "w")
         ucodef.write(ucode)
