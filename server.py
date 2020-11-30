@@ -2,7 +2,9 @@ import socket
 import os
 import json
 import judger
+import threading
 import shutil
+import time
 
 BUFSIZE = 8*1024*1024
 
@@ -13,22 +15,30 @@ BUFSIZE = 8*1024*1024
 # timeLimit
 # memoryLimit
 
-
-class JudgeServer:
-    def __init__(self, selfIp, masterIp):
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server.bind(selfIp)
+class HeartBeatSender(threading.Thread):
+    def __init__(self, sock, masterIp):
+        threading.Thread.__init__(self)
+        self.sock = sock
         self.masterIp = masterIp
-        self.judger = judger.Judger()
-
-    def connect(self):
-        initPack = {"qid": -1, "time": 0, "memory": 0, "state": 0}
-        initJSON = json.dumps(initPack)
-        self.server.sendto(initJSON.encode("utf-8"), self.masterIp)
+        self.hbPack = json.dumps(
+            {"qid": 0, "time": 0, "memory": 0, "state": 0}).encode()
 
     def run(self):
         while True:
-            req, _ = self.server.recvfrom(BUFSIZE)
+            time.sleep(1)
+            self.sock.sendto(self.masterIp, self.hbPack)
+
+
+class MasterListener(threading.Thread):
+    def __init__(self, sock, judger, masterIp):
+        threading.Thread.__init__(self)
+        self.sock = sock
+        self.judger = judger
+        self.masterIp = masterIp
+
+    def run(self):
+        while True:
+            req, _ = self.sock.recvfrom(BUFSIZE)
             req = req.decode()
             req = json.loads(req)
             print(req)
@@ -42,7 +52,7 @@ class JudgeServer:
                     req["timeLimit"], req["memoryLimit"])
                 result["qid"] = req["qid"]
             res = json.dumps(result)
-            self.server.sendto(res.endcode("utf-8"), self.masterIp)
+            self.sock.sendto(res.endcode("utf-8"), self.masterIp)
             self.cleanEnv(str(req['qid']))
 
     def setupEnv(self, qid, data, ucode):
@@ -59,4 +69,24 @@ class JudgeServer:
 
     def cleanEnv(self, qid):
         shutil.rmtree(qid)
-        #print(data.decode(), client_addr)
+        # print(data.decode(), client_addr)
+
+
+class JudgeServer:
+    def __init__(self, selfIp, masterIp):
+        self.serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.serverSock.bind(selfIp)
+        self.masterIp = masterIp
+        self.judger = judger.Judger()
+        self.hbSender = HeartBeatSender(self.serverSock, self.masterIp)
+        self.msListener = MasterListener(
+            self.serverSock, self.judger, self.masterIp)
+
+    def connect(self):
+        initPack = {"qid": -1, "time": 0, "memory": 0, "state": 0}
+        initJSON = json.dumps(initPack)
+        self.serverSock.sendto(initJSON.encode("utf-8"), self.masterIp)
+
+    def run(self):
+        self.hbSender.start()
+        self.msListener.start()
