@@ -46,12 +46,11 @@ class MasterListener(threading.Thread):
                           req['dataout'], req['ucode'])
             result = {"qid": req["qid"], "time": 0, "memory": 0, "state": 0}
             if self.judger.compile("user") == -1:
-                result["state"] = -2  # compile failed
+                result["state"] = 7  # compile failed
                 print("COMPILE FAIL")
-                continue
             else:
                 result = self.judger.judge(
-                    req["timeLimit"], req["memoryLimit"])
+                    int(req["timeLimit"]), int(req["memoryLimit"]))
                 result["qid"] = req["qid"]
             res = json.dumps(result)
             self.sock.sendto(res.encode("utf-8"), self.masterIp)

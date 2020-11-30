@@ -1,4 +1,4 @@
-#import _judger
+import _judger
 import os
 
 
@@ -21,7 +21,7 @@ class Judger:
     def judge(self, time_limit, memory_limit):
         running_result = _judger.run(max_cpu_time=time_limit,
                                      max_real_time=2*time_limit,
-                                     max_memory=memory_limit * 1024,
+                                     max_memory=memory_limit * 1024 * 1024,
                                      max_process_number=200,
                                      max_output_size=10000,
                                      max_stack=32 * 1024 * 1024,
@@ -40,15 +40,16 @@ class Judger:
                                      gid=0)
         # print(running_result.result)
         result = {"qid": 0, "time": running_result['real_time'],
-                  "memory": running_result['memory'], "state": running_result['result']}
+                  "memory": running_result['memory'], "state": running_result['result']+1}
         if running_result['result'] != 0:
             return result
         with open(self.workdir + "standard") as ansf:
             ans = ansf.read().strip()
             with open(self.workdir + self.dataname + ".out") as usrf:
                 usrans = usrf.read().strip()
+                print(ans,usrans)
                 if usrans != ans:
-                    result["state"] = -1  # WA
+                    result["state"] = 8  # WA
         return result
 
         # while ans[-1] == '\t' or ans[-1] == '\n' or ans
